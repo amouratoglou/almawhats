@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almawhats</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <form id="pedido">
+
+        <input id="spreadSheetRaw" value="" placeholder="pega aca la URL de tu sheet de google" type="text">
+
+        <div id="resultados" class="results"></div>
+
+        <button id="enviar" type="submit">Enviar tu pedido por Whastapp</button>
+    </form>
+    <style>
+        h4 {
+            display: inline-block;
+        }
+
+        p {
+            display: inline-block;
+        }
+
+        span.producto {
+            display: inline-block;
+            width: 300px;
+            border: 1px solid #e3e3e3;
+            margin-right: 1%;
+            border-radius: 10px;
+            box-shadow: 10px 10px 44px #ddddddcc;
+            font-family: sans-serif;
+        }
+
+        button#enviar {
+            background: green;
+            color: #fff;
+            padding: 14px;
+            margin-top: 30px;
+            border-radius: 100px;
+            font-size: 16px;
+
+        }
+
+        button#enviar:hover {
+            cursor: pointer;
+        }
+    </style>
+</body>
+
+</html>
+
+
+<script>
+    // ID of the Google Spreadsheet
+
+    let spreadSheetRaw =
+        "https://docs.google.com/spreadsheets/d/16B5owOYppRxJTAY_-xHg1SuNP5tK_lywJXnBNVALMzo/edit?usp=sharing"
+
+    // let spreadsheetID = "16B5owOYppRxJTAY_-xHg1SuNP5tK_lywJXnBNVALMzo";
+
+    let firstCook = spreadSheetRaw.replace('https://docs.google.com/spreadsheets/d/', '');
+    let secondCook = firstCook.replace('/edit?usp=sharing', '')
+    let spreadsheetID = secondCook;
+
+    let whastUrl = "https://api.whatsapp.com/send?phone=5493517615597&text=";
+
+    var url = "https://spreadsheets.google.com/feeds/list/" + spreadsheetID + "/od6/public/values?alt=json";
+
+
+    $.getJSON(url, function (data) {
+
+        var entry = data.feed.entry;
+
+        $(entry).each(function () {
+
+            let productName = this.gsx$producto.$t
+
+            // Column names are name, age, etc.
+            $('.results').prepend('<span class="producto"><input id="' +
+                productName + ' " type="checkbox"><h4>' + this.gsx$producto.$t + '</h4><p>' +
+                this.gsx$precio
+                .$t +
+                '</p></span>');
+        });
+
+    });
+
+    function enviarPedido() {
+        $("#enviar").click(function (event) {
+            event.preventDefault();
+            var searchIDs = $("#resultados input:checkbox:checked").map(function () {
+                return $(this).attr("id");
+            }).get();
+
+
+
+            $(location).attr('href', whastUrl +
+                'Hola, este es mi pedido para el dia de hoy, avisame a que hora puedo pasar a buscarlo: ' +
+                searchIDs);
+
+
+
+
+        });
+
+    }
+
+
+    enviarPedido();
+</script>
